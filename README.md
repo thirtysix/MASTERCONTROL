@@ -1,8 +1,7 @@
 # Master Control
+![Master Control Demo](figures/mastercontrol.gif)
 
 Multi-project control panel for AI-assisted development. Visualize projects on a hex grid, submit and track tasks, and spawn Claude Code sessions that already know your project — no re-explanation needed. FastAPI + D3.js dashboard with dual agentic/interactive modes, session discovery, and cost tracking.
-
-![Master Control Demo](figures/mastercontrol.gif)
 
 ![Master Control Dashboard](figures/00.png)
 *Full dashboard with hexagonal project grid clustered by tags and 6-panel layout*

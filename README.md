@@ -2,8 +2,8 @@
 
 Multi-project control panel for AI-assisted development. Visualize projects on a hex grid, submit and track tasks, and spawn Claude Code sessions that already know your project — no re-explanation needed. FastAPI + D3.js dashboard with dual agentic/interactive modes, session discovery, and cost tracking.
 
-<!-- TODO: Add screenshot -->
-<!-- ![Master Control Dashboard](docs/screenshot.png) -->
+![Master Control Dashboard](figures/00.png)
+*Full dashboard with hexagonal project grid clustered by tags and 6-panel layout*
 
 ## Who Is This For?
 
@@ -28,6 +28,9 @@ A locally-hosted dashboard that **visualizes and manages all your projects in on
 - **Task system** — create, assign, track, and review tasks per project. Full history with terminal logs showing exactly what the AI agent did.
 - **Project scanner** — auto-discovers sibling directories, reads their metadata (tech stack, git status, README), and keeps the dashboard current.
 
+![Project selected with panels populated](figures/01.png)
+*Selecting a project populates all panels — status, tasks, sessions, and cross-project view*
+
 ## How?
 
 The core workflow: **submit a task, track it, review the results — across all your projects from one screen.**
@@ -40,6 +43,19 @@ The core workflow: **submit a task, track it, review the results — across all 
 4. **Cross-project visibility**: The "All Tasks" panel shows work across every project, so you always know what's in flight, what's blocked, and what's done.
 
 The result: instead of spending time on project setup and context-switching, you spend it on the work itself.
+
+| | |
+|---|---|
+| ![Creating a task](figures/02.png) | ![Claude Code terminal session](figures/03.png) |
+| *Creating a new task for a project* | *Claude Code working in an interactive terminal session* |
+
+| | |
+|---|---|
+| ![Task completed](figures/04.png) | ![Task detail overlay](figures/05.png) |
+| *Completed task visible in the dashboard* | *Task detail overlay with full description and status* |
+
+![Terminal log viewer](figures/06.png)
+*Terminal log viewer showing the full agent conversation — every tool call and result*
 
 ## Features
 

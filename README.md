@@ -57,14 +57,14 @@ The result: instead of spending time on project setup and context-switching, you
 
 ```
 ┌─────────────────────────────────────────────┐
-│              Browser (localhost:8000)         │
-│  ┌─────────────────────────────────────────┐ │
-│  │  Vanilla JS + D3.js  (no build step)    │ │
-│  └─────────────────────────────────────────┘ │
+│              Browser (localhost:8000)       │
+│  ┌─────────────────────────────────────────┐│
+│  │  Vanilla JS + D3.js  (no build step)    ││
+│  └─────────────────────────────────────────┘│
 └──────────────────────┬──────────────────────┘
                        │ REST + SSE
 ┌──────────────────────┴──────────────────────┐
-│              FastAPI Backend                  │
+│              FastAPI Backend                │
 │  ┌──────────┐ ┌──────────┐ ┌──────────────┐ │
 │  │ Routers  │ │ Services │ │   Agents     │ │
 │  │ projects │ │ scanner  │ │ coordinator  │ │
@@ -72,10 +72,10 @@ The result: instead of spending time on project setup and context-switching, you
 │  │ agents   │ │ windows  │ │              │ │
 │  │ system   │ │          │ │              │ │
 │  └──────────┘ └──────────┘ └──────────────┘ │
-│  ┌──────────────────────────────────────┐    │
-│  │  SQLite (rebuild-able cache)         │    │
-│  └──────────────────────────────────────┘    │
-└──────────────────────────────────────────────┘
+│  ┌──────────────────────────────────────┐   │
+│  │  SQLite (rebuild-able cache)         │   │
+│  └──────────────────────────────────────┘   │
+└─────────────────────────────────────────────┘
 ```
 
 - **Backend**: FastAPI + SQLModel/SQLite + Pydantic Settings

@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MASTER CONTROL</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpolygon points='16,1 29,8.5 29,23.5 16,31 3,23.5 3,8.5' fill='%230a0e14' stroke='%2300d4ff' stroke-width='2'/%3E%3Cpolygon points='16,8 22,11.5 22,18.5 16,22 10,18.5 10,11.5' fill='%2300d4ff' fill-opacity='0.3' stroke='%2300d4ff' stroke-width='1'/%3E%3C/svg%3E">
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <header>
+        <div class="header-left">
+            <h1>MASTER CONTROL</h1>
+            <div id="stats-bar">Loading...</div>
+        </div>
+        <div class="controls">
+            <div class="mode-toggle" id="mode-toggle">
+                <button class="mode-btn active" data-mode="agentic">Agentic</button>
+                <button class="mode-btn" data-mode="interactive">Interactive</button>
+            </div>
+            <span id="status-dot" class="status-dot"></span>
+            <button onclick="triggerScan()">Scan</button>
+            <button onclick="showNewProject()">New Project</button>
+        </div>
+    </header>
+
+    <div id="main-display">
+        <div id="tag-filter-bar"></div>
+        <svg id="hex-grid"></svg>
+    </div>
+
+    <div id="resize-handle-h" class="resize-handle-h"></div>
+
+    <div id="bottom-panels">
+        <div class="panel" id="panel-status">
+            <div class="panel-header">Project Status</div>
+            <div class="scrollable" id="panel-status-content">
+                <div class="empty-state">Select a project</div>
+            </div>
+        </div>
+        <div class="col-resize-handle"></div>
+        <div class="panel" id="panel-upcoming">
+            <div class="panel-header">Upcoming Tasks <button id="btn-new-task" class="panel-action-btn" onclick="Panels.toggleTaskForm()" disabled>+ Task</button></div>
+            <div class="scrollable" id="panel-upcoming-content">
+                <div class="empty-state">No active tasks</div>
+            </div>
+        </div>
+        <div class="col-resize-handle"></div>
+        <div class="panel" id="panel-completed">
+            <div class="panel-header">Completed Tasks</div>
+            <div class="scrollable" id="panel-completed-content">
+                <div class="empty-state">No completed tasks</div>
+            </div>
+        </div>
+        <div class="col-resize-handle"></div>
+        <div class="panel" id="panel-progress">
+            <div class="panel-header">All Tasks <select id="all-tasks-filter" onchange="Panels.onAllTasksFilterChange(this.value)"><option value="" disabled selected>—</option><option value="__all__">All Projects</option></select></div>
+            <div class="scrollable" id="panel-progress-content">
+                <div class="empty-state">No tasks yet</div>
+            </div>
+        </div>
+        <div class="col-resize-handle"></div>
+        <div class="panel" id="panel-suggestions">
+            <div class="panel-header">Suggested Next Steps</div>
+            <div class="scrollable" id="panel-suggestions-content">
+                <div class="empty-state">Select a project</div>
+            </div>
+        </div>
+        <div class="col-resize-handle"></div>
+        <div class="panel" id="panel-agents">
+            <div class="panel-header">Agents &amp; Tokens</div>
+            <div class="scrollable" id="panel-agents-content">
+                <div class="empty-state">No agents configured</div>
+            </div>
+        </div>
+    </div>
+
+    <div id="task-detail-overlay" class="task-detail-overlay" style="display:none;">
+        <div class="task-detail-header">
+            <span class="task-detail-title" id="task-detail-title"></span>
+            <span class="task-detail-status" id="task-detail-status"></span>
+            <button class="terminal-close" onclick="closeTaskDetail()">Close</button>
+        </div>
+        <div class="task-detail-body" id="task-detail-body"></div>
+    </div>
+
+    <div id="terminal-overlay" class="terminal-overlay" style="display:none;">
+        <div class="terminal-header">
+            <span class="terminal-title">Agent Terminal</span>
+            <span class="terminal-status" id="terminal-status"></span>
+            <button class="terminal-close" onclick="minimizeTerminal()">Minimize</button>
+        </div>
+        <div class="terminal-body" id="terminal-body"></div>
+    </div>
+
+    <div id="tooltip" class="tooltip" style="display:none;"></div>
+
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="/static/utils.js"></script>
+    <script src="/static/hex-grid.js"></script>
+    <script src="/static/panels.js"></script>
+    <script src="/static/resize.js"></script>
+    <script src="/static/app.js"></script>
+</body>
+</html>

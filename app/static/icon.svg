@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
+  <!-- Outer hexagon -->
+  <polygon points="128,8 232,72 232,184 128,248 24,184 24,72"
+           fill="#0f1923" stroke="#4fc3f7" stroke-width="8"/>
+  <!-- Inner hexagon ring -->
+  <polygon points="128,40 204,88 204,168 128,216 52,168 52,88"
+           fill="none" stroke="#1a2d3d" stroke-width="2"/>
+  <!-- MC text -->
+  <text x="128" y="148" text-anchor="middle" dominant-baseline="central"
+        font-family="monospace" font-weight="bold" font-size="72" fill="#4fc3f7"
+        letter-spacing="-2">MC</text>
+  <!-- Status indicator -->
+  <circle cx="128" cy="200" r="8" fill="#66bb6a"/>
+</svg>

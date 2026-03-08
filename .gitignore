@@ -1,0 +1,31 @@
+# Runtime data
+data/
+logs/
+*.pid
+
+# Environment and secrets
+.env
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# Claude Code (per-user config)
+.claude/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db

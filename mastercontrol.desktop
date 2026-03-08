@@ -1,0 +1,26 @@
+# NOTE: Run `make install-desktop` or `./scripts/install-desktop.sh` to generate
+# a properly configured .desktop file with correct paths for your system.
+#
+# The paths below are placeholders — they will be overwritten by the installer.
+
+[Desktop Entry]
+Version=1.1
+Type=Application
+Name=Master Control
+GenericName=AI Project Manager
+Comment=Multi-project AI control panel
+Exec=INSTALL_DIR/mastercontrol.sh start --desktop
+Icon=INSTALL_DIR/app/static/icon.png
+Terminal=false
+Categories=Development;
+StartupNotify=true
+
+Actions=stop;status;
+
+[Desktop Action stop]
+Name=Stop Server
+Exec=INSTALL_DIR/mastercontrol.sh stop
+
+[Desktop Action status]
+Name=Show Status
+Exec=INSTALL_DIR/mastercontrol.sh status

@@ -1,0 +1,336 @@
+# =============================================================================
+# Master Control Manifest
+# Project: Master Control
+# Generated:    2026-03-07
+# Last Updated: 2026-03-07
+# =============================================================================
+
+project:
+  name: "Master Control"
+  slug: "MASTER_CONTROL"
+  version: "2.6.0"
+  status: active
+  description: >
+    Multi-project, multi-agent control panel for 23+ AI/research projects.
+    Provides a unified RTL-SDR style dark dashboard with SVG hexagonal grid
+    visualization, 6-panel layout, tag-based clustering, and dual-mode
+    execution (agentic subprocess and interactive terminal). Manages task
+    lifecycle, Claude Code session discovery, terminal log persistence,
+    and X11 window management.
+
+  purpose:
+    summary: >
+      Centralized orchestration hub for managing, monitoring, and dispatching
+      AI-assisted work across a portfolio of research and software projects.
+      Scans sibling directories for project metadata, presents them on an
+      interactive hex grid, and supports both autonomous agent execution and
+      interactive Claude Code terminal sessions.
+    goals:
+      - Unified dashboard for all AI/research projects
+      - Agent-assisted task execution via Claude Code CLI
+      - Interactive terminal session management and tracking
+      - Tag-based project discovery and filtering
+      - Real-time cost and token usage monitoring
+      - Multi-agent governance and workflow orchestration (planned)
+
+tags:
+  - dashboard
+  - agent-orchestration
+  - fastapi
+  - d3js
+  - sqlite
+  - claude-code
+  - sse
+  - task-management
+
+# =============================================================================
+# Technology Stack
+# =============================================================================
+
+stack:
+  languages:
+    - Python 3.12+    # Backend: FastAPI, agent orchestration, services
+    - JavaScript ES6  # Frontend: vanilla JS, D3.js, no framework
+
+  frameworks:
+    - FastAPI 0.115+   # REST API + SSE streaming
+    - Uvicorn          # ASGI server
+    - SQLModel 0.0.22+ # SQLite ORM (SQLAlchemy-based)
+    - Pydantic Settings 2.0+  # Environment config (MASTERCTL_ prefix)
+    - D3.js v7         # Hex grid visualization and interactive rendering
+
+  databases:
+    - SQLite  # Local cache (rebuild-able from .mastercontrol/ files)
+
+  key_python_deps:
+    - fastapi>=0.115.0
+    - uvicorn[standard]
+    - sqlmodel>=0.0.22
+    - pydantic-settings>=2.0
+    - sse-starlette        # Server-Sent Events
+    - jinja2               # HTML templating
+    - aiofiles             # Async file serving
+    - watchfiles           # Dev auto-reload
+    - python-xlib          # X11 window management
+    - pyyaml               # Manifest parsing
+    - click                # CLI
+    - anthropic            # Claude API (optional)
+    - openai               # OpenAI/DeepInfra API (optional)
+
+  key_frontend_deps:
+    - D3.js v7             # Hex grid, SVG rendering, data joins
+    - Vanilla JS modules   # hex-grid.js, panels.js, resize.js, utils.js, app.js
+
+# =============================================================================
+# Architecture
+# =============================================================================
+
+architecture:
+  type: "Monorepo — FastAPI backend serving static frontend"
+  pattern: "Backend serves API + static files; no separate frontend build step"
+
+  services:
+    backend:
+      path: backend/src/
+      entry: backend/src/main.py
+      port: 8000
+      description: "FastAPI REST API with SSE streaming, serves static frontend"
+      run_command: "cd backend && uvicorn src.main:app --reload"
+
+    frontend:
+      path: app/
+      entry: app/templates/index.html
+      description: "Vanilla JS + D3.js dashboard served as static files by FastAPI"
+
+    agent:
+      description: "Claude Code CLI subprocess (claude -p --output-format stream-json --verbose)"
+      mode: "Spawned per-task by coordinator service"
+
+  database:
+    engine: SQLite
+    path: data/master_control.db
+    note: "Auto-created, deletable — .mastercontrol/ files are authoritative"
+
+# =============================================================================
+# Core Modules
+# =============================================================================
+
+modules:
+  routers:
+    path: backend/src/routers/
+    components:
+      projects:
+        file: backend/src/routers/projects.py
+        description: "Project CRUD, scanning, hex grid data"
+      tasks:
+        file: backend/src/routers/tasks.py
+        description: "Task CRUD, status transitions, terminal log retrieval"
+      agents:
+        file: backend/src/routers/agents.py
+        description: "Agent dispatch, SSE streaming, process management"
+
+  services:
+    path: backend/src/services/
+    components:
+      project_scanner:
+        file: backend/src/services/project_scanner.py
+        description: "Scans 002.AI_projects/ for projects, tech stacks, git info"
+      coordinator:
+        file: backend/src/agents/coordinator.py
+        description: "Spawns claude -p subprocesses for agentic task execution"
+      session_service:
+        file: backend/src/services/session_service.py
+        description: "Claude Code session discovery (index + JSONL fallback)"
+      window_manager:
+        file: backend/src/services/window_manager.py
+        description: "X11 window find/activate via python-xlib"
+
+  database:
+    path: backend/src/db/
+    components:
+      models:
+        file: backend/src/db/models.py
+        description: "SQLModel models: Project, Agent, Task, AuditEntry, FileLock"
+      session:
+        file: backend/src/db/session.py
+        description: "SQLite engine and session factory"
+
+  frontend:
+    path: app/static/
+    components:
+      app:
+        file: app/static/app.js
+        description: "Main application bootstrap, event wiring, mode management"
+      hex_grid:
+        file: app/static/hex-grid.js
+        description: "D3.js hex grid rendering, tag clustering, selection"
+      panels:
+        file: app/static/panels.js
+        description: "6-panel layout: status, tasks, sessions, agents, suggestions"
+      resize:
+        file: app/static/resize.js
+        description: "Responsive layout and panel resizing"
+      utils:
+        file: app/static/utils.js
+        description: "API fetch wrapper, formatting, shared utilities"
+    styles:
+      file: app/static/style.css
+      description: "RTL-SDR dark theme, hex grid, panel layouts, overlays"
+
+# =============================================================================
+# Configuration
+# =============================================================================
+
+configuration:
+  config_file: backend/src/config.py
+  env_file: .env
+  env_example: .env.example
+  schema: "Pydantic BaseSettings with MASTERCTL_ prefix"
+  key_vars:
+    MASTERCTL_HOST: "127.0.0.1"
+    MASTERCTL_PORT: 8000
+    MASTERCTL_PROJECTS_DIR: "Parent of MASTER_CONTROL (002.AI_projects/)"
+    MASTERCTL_CLAUDE_MODEL: "sonnet (default)"
+    MASTERCTL_MAX_BUDGET_USD: "0.50 (per agent task)"
+    MASTERCTL_ANTHROPIC_API_KEY: "Optional — Claude API key"
+    MASTERCTL_OPENAI_API_KEY: "Optional — OpenAI/DeepInfra API key"
+
+# =============================================================================
+# Execution Modes
+# =============================================================================
+
+execution_modes:
+  agentic:
+    description: "Claude Code subprocess with SSE streaming"
+    command: "claude -p --output-format stream-json --verbose"
+    flags:
+      - "--append-system-prompt (preserves CLAUDE.md auto-discovery)"
+      - "--permission-mode bypassPermissions"
+      - "--no-session-persistence"
+    events: "JSONL stream → SSE: thinking, tool_call, tool_result, usage, terminal, complete, error"
+    cost_tracking: "Real cost/tokens from Claude Code result event"
+
+  interactive:
+    description: "Opens gnome-terminal with Claude Code session"
+    command: 'gnome-terminal -- bash -c "cd <path> && claude [args]; exec bash"'
+    session_discovery: "Reads ~/.claude/projects/<encoded-path>/ for sessions"
+    window_management: "python-xlib finds/activates terminals by MC:<Project>:<SessionId> title"
+    task_flow: "pending → dispatched (sent to terminal) → completed (manual mark done)"
+
+# =============================================================================
+# Key Features
+# =============================================================================
+
+features:
+  hex_grid:
+    description: "SVG hexagonal grid with D3.js — each hex represents a project"
+    interactions: "Click to select, tag filtering, visual status indicators"
+
+  six_panels:
+    - "Project Status — selected project metadata and health"
+    - "Upcoming Tasks — pending tasks for selected project"
+    - "Completed Tasks / Claude Sessions — mode-dependent panel"
+    - "All Tasks — cross-project task browser with dropdown filter"
+    - "Suggested Next Steps — AI-generated recommendations"
+    - "Agents & Tokens — running agents, cost/token tracking"
+
+  task_management:
+    description: "Full CRUD with status transitions and terminal log persistence"
+    statuses: [pending, dispatched, completed]
+    features:
+      - "Task detail overlay (click any task title)"
+      - "Terminal log viewer (View Terminal Log button)"
+      - "Session linking via prompt containment matching"
+      - "Backfill endpoint for retroactive session matching"
+
+  session_integration:
+    description: "Claude Code session discovery and management"
+    sources:
+      - "sessions-index.json (preferred)"
+      - "Raw .jsonl files (fallback, filters metadata-only sessions)"
+    path_encoding: "All /, ., _ → - in path, case preserved, prefixed with -"
+
+# =============================================================================
+# Entry Points & Scripts
+# =============================================================================
+
+entry_points:
+  dev_server: "cd backend && uvicorn src.main:app --reload"
+  makefile: Makefile
+  cli: mastercontrol.sh
+
+# =============================================================================
+# Project Phases & Status
+# =============================================================================
+
+phases:
+  completed:
+    - id: phase-1
+      name: "Dashboard & Visualization"
+      description: "Hex grid, 17 projects scanned, all 6 panels, tag filtering"
+    - id: phase-2
+      name: "Agent Infrastructure"
+      description: "Claude Code CLI subprocess, task CRUD, SSE streaming, terminal overlay"
+    - id: phase-2.5
+      name: "CLAUDE.md & Persistence"
+      description: "CLAUDE.md auto-generation, --append-system-prompt, terminal log persistence"
+    - id: phase-2.6
+      name: "Dual Mode & UX Polish"
+      description: "Agentic/Interactive toggle, session discovery, window management, task detail overlay"
+
+  upcoming:
+    - id: phase-3
+      name: "Multi-Agent & Governance"
+      description: "Multi-agent coordination, .mastercontrol/ auto-generation"
+    - id: phase-4
+      name: "Templates & Project Creation"
+      description: "Jinja2 templates, CLI-first project scaffolding"
+    - id: phase-5
+      name: "Advanced Features"
+      description: "Three.js upgrade, brainstorm agent, workflow orchestration"
+
+# =============================================================================
+# Key File Index
+# =============================================================================
+
+key_files:
+  - path: backend/src/main.py
+    role: "FastAPI app factory, route mounting, static file serving"
+  - path: backend/src/config.py
+    role: "Pydantic Settings configuration (MASTERCTL_ prefix)"
+  - path: backend/src/db/models.py
+    role: "SQLModel ORM models (Project, Agent, Task, AuditEntry, FileLock)"
+  - path: backend/src/agents/coordinator.py
+    role: "Agent subprocess orchestration and SSE event streaming"
+  - path: backend/src/services/project_scanner.py
+    role: "Project discovery — scans 002.AI_projects/ for metadata"
+  - path: backend/src/services/session_service.py
+    role: "Claude Code session discovery and JSONL parsing"
+  - path: backend/src/services/window_manager.py
+    role: "X11 window management via python-xlib"
+  - path: app/templates/index.html
+    role: "Main dashboard HTML template"
+  - path: app/static/app.js
+    role: "Frontend bootstrap, mode management, event wiring"
+  - path: app/static/hex-grid.js
+    role: "D3.js SVG hex grid rendering and interaction"
+  - path: app/static/panels.js
+    role: "6-panel layout rendering and data binding"
+  - path: app/static/style.css
+    role: "RTL-SDR dark theme and layout styles"
+  - path: CLAUDE.md
+    role: "Project instructions for Claude Code agents"
+
+# =============================================================================
+# Master Control Directory
+# =============================================================================
+
+mastercontrol:
+  path: .mastercontrol/
+  purpose: >
+    Project-level control plane for AI-assisted development. Contains the
+    canonical manifest (this file) that describes the project's architecture,
+    configuration, entry points, and current phase — enabling any agent or
+    developer to orient quickly without reading the full codebase.
+  files:
+    manifest.yaml: "This file — single source of truth for project metadata"

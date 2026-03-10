@@ -23,6 +23,7 @@ ensure_venv() {
 }
 
 is_running() {
+    # 1. Check PID file (started via mastercontrol.sh)
     if [ -f "$PID_FILE" ]; then
         local pid
         pid=$(cat "$PID_FILE")
@@ -31,10 +32,31 @@ is_running() {
         else
             # Stale PID file — process is dead
             rm -f "$PID_FILE"
-            return 1
         fi
     fi
+    # 2. Fallback: check if port is in use (started manually / by another tool)
+    if check_port; then
+        return 0
+    fi
     return 1
+}
+
+get_pid() {
+    # Return PID from file if valid, otherwise find it from the port
+    if [ -f "$PID_FILE" ]; then
+        local pid
+        pid=$(cat "$PID_FILE")
+        if kill -0 "$pid" 2>/dev/null; then
+            echo "$pid"
+            return 0
+        fi
+    fi
+    # Find PID from port listener
+    if command -v ss &>/dev/null; then
+        ss -tlnp 2>/dev/null | grep ":${PORT} " | sed -n 's/.*pid=\([0-9]*\).*/\1/p' | head -1
+    elif command -v lsof &>/dev/null; then
+        lsof -ti :"${PORT}" -sTCP:LISTEN 2>/dev/null | head -1
+    fi
 }
 
 check_port() {
@@ -124,7 +146,11 @@ do_stop() {
     fi
 
     local pid
-    pid=$(cat "$PID_FILE")
+    pid=$(get_pid)
+    if [ -z "$pid" ]; then
+        echo "MASTER CONTROL appears to be running but could not determine PID."
+        exit 1
+    fi
     echo "Stopping MASTER CONTROL (PID $pid)..."
 
     kill "$pid" 2>/dev/null || true
@@ -153,8 +179,8 @@ do_status() {
     local msg
     if is_running; then
         local pid
-        pid=$(cat "$PID_FILE")
-        msg="Running (PID $pid)\nURL: $URL\nLog: $LOG_FILE"
+        pid=$(get_pid)
+        msg="Running (PID ${pid:-unknown})\nURL: $URL\nLog: $LOG_FILE"
     else
         msg="Not running."
     fi
